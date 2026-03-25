@@ -1,283 +1,753 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TapTots — Safe Learning Games for Kids</title>
-  <meta name="description" content="TapTots — safe, ad-free learning games for kids." />
-  <link rel="manifest" href="/manifest.json" />
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TapTots">
+<meta name="theme-color" content="#16361a">
+<meta name="description" content="TapTots — a safe alternative to YouTube for kids. Ad-free learning games for ages 2–7. Start your free 7-day trial.">
+<title>TapTots — A Safe Alternative to YouTube for Kids</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+/* ── tokens ── */
 :root{
-  --bg:#f8fbff;
-  --card:#ffffff;
-  --ink:#16324f;
-  --muted:#5d7288;
-  --line:#dbe7f3;
-  --brand:#4ea3ff;
-  --brand2:#7fd6c2;
-  --accent:#ffd66b;
-  --good:#2fa66a;
-  --danger:#f86a6a;
-  --shadow:0 14px 40px rgba(22,50,79,.10);
-  --radius:24px;
+  --bg:#14301a;--bg2:#0d2010;
+  --panel:rgba(22,68,28,.90);
+  --line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);
+  --text:#f4eedf;--muted:#b8ccaa;--ink:#2c1f10;
+  --y:#f3d247;--y2:#c79716;
+  --green:#7de07a;--sky:#80ccf0;
+  --shadow:0 18px 44px rgba(0,0,0,.30);
+  --r:28px;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  margin:0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color:var(--ink);
-  background:linear-gradient(180deg,#f9fcff 0%, #f0f8ff 100%);
+body{font-family:'Inter',sans-serif;color:var(--text);overflow-x:hidden;
+  background:linear-gradient(180deg,#14301a 0%,#183d1e 40%,#102810 80%,var(--bg2) 100%);
 }
-a{color:inherit;text-decoration:none}
-img{max-width:100%}
-.container{width:min(1100px, calc(100vw - 28px)); margin:0 auto}
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
-  min-height:48px; padding:0 18px; border-radius:999px; border:1px solid transparent;
-  font-weight:700; cursor:pointer; transition:.2s ease; background:var(--brand); color:white;
-  box-shadow:var(--shadow);
-}
-.btn:hover{transform:translateY(-1px)}
-.btn.secondary{background:white; color:var(--ink); border-color:var(--line); box-shadow:none}
-.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line); box-shadow:none}
-.badge{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px; background:#fff; border:1px solid var(--line); font-size:.92rem; color:var(--muted)}
-.site-header{position:sticky; top:0; z-index:30; backdrop-filter:blur(12px); background:rgba(248,251,255,.82); border-bottom:1px solid rgba(219,231,243,.8)}
-.nav{display:flex; align-items:center; justify-content:space-between; min-height:76px; gap:18px}
-.brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:-.02em}
-.brand-mark{width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:linear-gradient(135deg,var(--brand),var(--brand2)); font-size:1.3rem; color:#fff; box-shadow:var(--shadow)}
-.nav-links{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
-.nav-links a{padding:10px 12px; border-radius:999px; color:var(--muted); font-weight:700}
-.nav-links a.active,.nav-links a:hover{background:#fff; color:var(--ink); border:1px solid var(--line)}
-.hero{padding:42px 0 18px}
-.hero-grid{display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:center}
-.hero-card,.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
-.hero-copy{padding:30px}
-.hero h1{font-size:clamp(2rem,5vw,4.1rem); line-height:1.02; letter-spacing:-.05em; margin:12px 0 12px}
-.hero p{font-size:1.08rem; color:var(--muted); line-height:1.65}
-.hero-visual{padding:22px; display:grid; gap:14px}
-.kid-panel{background:linear-gradient(135deg,#eef8ff,#fff7dd); border:1px solid var(--line); border-radius:22px; padding:18px; display:grid; gap:14px}
-.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:20px 0}
-.stat{padding:18px; text-align:center}
-.stat strong{font-size:1.6rem; display:block}
-.section{padding:28px 0}
-.section h2{font-size:clamp(1.6rem,3vw,2.4rem); letter-spacing:-.03em; margin:0 0 12px}
-.section p.lead{color:var(--muted); line-height:1.65; max-width:760px}
-.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
-.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
-.feature,.game-card,.pricing-card,.faq-item,.info-card{padding:22px}
-.feature h3,.game-card h3,.pricing-card h3,.info-card h3{margin:10px 0 8px; font-size:1.18rem}
-.muted{color:var(--muted)}
-.game-card{display:flex; flex-direction:column; gap:10px}
-.game-card .topline{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.tag{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-weight:700; background:#eef7ff; color:#2966a3}
-.tag.coming{background:#fff2db; color:#8f6517}
-.bullets{display:grid; gap:10px; padding:0; margin:0; list-style:none}
-.bullets li{display:flex; gap:10px; align-items:flex-start}
-.pricing{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
-.pricing-card.popular{outline:3px solid #ffe39b; position:relative}
-.pricing-card.popular:before{content:'Most Popular'; position:absolute; top:-13px; right:18px; background:#ffe39b; padding:7px 12px; border-radius:999px; font-weight:900; font-size:.82rem}
-.cta-band{padding:28px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px}
-.footer{padding:30px 0 60px; color:var(--muted)}
-.footer .small{font-size:.92rem}
-.notice{padding:16px 18px; border-radius:18px; background:#fff9e9; border:1px solid #f6df9c; color:#7c5b08}
-.demo-banner{margin-top:18px; padding:14px 16px; border-radius:18px; background:#eff8ff; border:1px solid #cfe7ff; color:#245b89}
-.form-row{display:flex; flex-wrap:wrap; gap:12px}
-.input{min-height:48px; border:1px solid var(--line); border-radius:14px; padding:0 14px; font:inherit; color:var(--ink); background:#fff; width:100%}
-.progress-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
-.pill-row{display:flex; flex-wrap:wrap; gap:8px}
-.pill{padding:8px 12px; border-radius:999px; background:#fff; border:1px solid var(--line); color:var(--muted); font-weight:700}
-.game-hero{padding:28px; display:grid; gap:16px}
-.game-shell{display:grid; grid-template-columns:280px 1fr; gap:18px; align-items:start}
-.panel{padding:20px}
-.target-box{display:grid; place-items:center; min-height:140px; border-radius:22px; background:linear-gradient(180deg,#fff9ea,#fff); border:1px solid var(--line)}
-.target-letter{font-size:4rem; font-weight:900; letter-spacing:-.05em}
-.animal-box{display:grid; place-items:center; min-height:170px; border-radius:22px; background:linear-gradient(180deg,#eef8ff,#fff); border:1px solid var(--line); text-align:center; padding:18px}
-.animal-emoji{font-size:4rem}
-#gameArea{position:relative; min-height:440px; overflow:hidden; border-radius:28px; border:1px solid var(--line); background:linear-gradient(180deg,#dff4ff 0%, #f9fdff 70%, #f2fbff 100%)}
-.cloud{position:absolute; background:rgba(255,255,255,.9); border-radius:999px; box-shadow:0 8px 30px rgba(81,120,145,.08)}
-.letter{position:absolute; width:74px; height:74px; border:none; border-radius:22px; font-size:2rem; font-weight:900; cursor:pointer; background:#fff; color:var(--ink); box-shadow:var(--shadow); border:1px solid #dbe7f3; user-select:none}
-.letter.good{background:#e8fff2; border-color:#93e0b7}
-.letter.bad{background:#fff0f0; border-color:#ffc0c0}
-.game-message{min-height:28px; font-weight:800}
-.score-line{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
-.score-chip{padding:10px 12px; border-radius:16px; background:#fff; border:1px solid var(--line); font-weight:800}
-.help{font-size:.95rem; color:var(--muted); line-height:1.55}
-@media (max-width: 920px){
-  .hero-grid,.game-shell,.grid-4,.grid-3,.pricing,.stat-grid,.progress-row{grid-template-columns:1fr 1fr}
-}
-@media (max-width: 720px){
-  .nav{align-items:flex-start; padding:12px 0}
-  .nav-links{justify-content:flex-start}
-  .hero-grid,.game-shell,.grid-4,.grid-3,.pricing,.stat-grid,.progress-row{grid-template-columns:1fr}
-  .hero-copy,.hero-visual,.game-hero,.panel{padding:22px}
-  .target-letter{font-size:3.1rem}
-  .letter{width:66px;height:66px;font-size:1.8rem}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+img{display:block}
+
+/* ── top nav ── */
+.nav{position:fixed;top:54px;left:12px;z-index:9000}
+.nav-btn{width:50px;height:50px;border:none;border-radius:16px;background:rgba(255,255,255,.94);
+  color:#2b190b;box-shadow:0 6px 18px rgba(0,0,0,.22);font-size:22px;cursor:pointer;
+  display:grid;place-items:center;transition:transform .1s}
+.nav-btn:active{transform:scale(.92)}
+.nav-panel{position:fixed;top:110px;left:12px;z-index:9001;display:none;min-width:244px;
+  padding:10px;background:rgba(4,18,8,.97);backdrop-filter:blur(14px);
+  border:1px solid var(--line2);border-radius:20px;box-shadow:0 14px 40px rgba(0,0,0,.34)}
+.nav-panel.open{display:block;animation:nIn .16s ease-out}
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.nav-title{padding:8px 12px 10px;color:#7acc66;font-weight:800;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+.nav-link{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;
+  color:var(--text);font-weight:700;font-size:15px;transition:background .1s;cursor:pointer}
+.nav-link:hover{background:rgba(255,255,255,.08)}
+.nav-div{height:1px;background:var(--line);margin:4px 0}
+.nav-user{padding:10px 12px 4px;font-size:12px;color:var(--muted);display:none;word-break:break-all}
+.nav-scrim{position:fixed;inset:0;z-index:8999;display:none}
+.nav-scrim.open{display:block}
+
+/* ── PWA banner ── */
+.pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:8000;
+  background:linear-gradient(180deg,#fffaf0,#f5e8cb);color:var(--ink);
+  padding:16px 20px 24px;box-shadow:0 -8px 32px rgba(0,0,0,.20);
+  display:none;align-items:center;gap:14px;
+  border-top-left-radius:22px;border-top-right-radius:22px;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.pwa-banner.pwa-visible{transform:translateY(0)}
+.pwa-icon{font-size:38px;flex:0 0 auto}
+.pwa-text strong{display:block;font-size:16px;font-weight:800;color:var(--ink)}
+.pwa-text span{font-size:13px;color:#6b5740;line-height:1.4}
+.pwa-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pwa-btn{border:none;border-radius:12px;padding:11px 16px;font-weight:800;font-size:14px;cursor:pointer}
+.pwa-yes{background:var(--y);color:#111;box-shadow:0 3px 0 var(--y2)}
+.pwa-no{background:rgba(0,0,0,.06);color:#5a4a38}
+
+/* ── float CTA (mobile) ── */
+.fcta{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:550;
+  background:var(--y);color:#111;border-radius:999px;padding:14px 26px;
+  box-shadow:0 5px 0 var(--y2),0 10px 28px rgba(0,0,0,.28);
+  font-weight:900;font-size:16px;display:none;white-space:nowrap;border:none;cursor:pointer}
+
+/* ── layout ── */
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+.content{padding-bottom:60px}
+
+/* ── brand ── */
+.brand-bar{display:flex;justify-content:center;padding:22px 0 0}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark{width:56px;height:56px;border-radius:18px;
+  background:linear-gradient(180deg,#ffe87a,#f0c428);
+  box-shadow:0 4px 0 var(--y2);display:grid;place-items:center;font-size:26px}
+.brand-name{font-family:'Fredoka',sans-serif;font-size:30px;line-height:1;letter-spacing:-.4px;color:var(--text)}
+.brand-name span{color:var(--y)}
+
+/* ── hero ── */
+.hero{margin-top:20px;display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.hero-l,.hero-r{padding:22px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--sky);color:#0a2d3d;
+  border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;letter-spacing:.2px}
+.pill::before{content:'';width:7px;height:7px;border-radius:50%;background:#0a2d3d;opacity:.6}
+.hero-card{margin-top:12px;background:linear-gradient(165deg,#fff8ee,#f5e6ca);color:var(--ink);
+  border-radius:24px;padding:22px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.hero-card h1{margin:0;font-family:'Fredoka',sans-serif;font-size:42px;line-height:.97;letter-spacing:-.9px;color:#1a1a1a}
+.hero-card h1 em{color:#d44a00;font-style:normal}
+.hero-card p{margin:12px 0 0;color:#5a4433;font-size:17px;line-height:1.52;font-weight:600}
+
+/* signed-out email form */
+.trial-form{margin-top:18px}
+.ef{display:grid;grid-template-columns:1fr auto;gap:10px}
+.ei{width:100%;padding:15px;border-radius:15px;border:1.5px solid rgba(255,255,255,.20);
+  background:rgba(255,255,255,.11);color:var(--text);outline:none;font-size:16px;
+  transition:border-color .15s}
+.ei:focus{border-color:rgba(255,255,255,.45)}
+.ei::placeholder{color:#9aac88}
+.enote{margin-top:8px;font-size:12.5px;color:#9aac88;line-height:1.45}
+.sub-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* signed-in status */
+.user-row{margin-top:14px;padding:12px 15px;border-radius:16px;
+  font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ur-trial{background:rgba(125,224,122,.12);border:1px solid rgba(125,224,122,.28);color:var(--green)}
+.ur-paid{background:rgba(128,204,240,.12);border:1px solid rgba(128,204,240,.28);color:var(--sky)}
+.ur-exp{background:rgba(220,80,50,.12);border:1px solid rgba(220,80,50,.28);color:#f08870}
+.ur-err{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted)}
+.ubadge{background:rgba(255,255,255,.12);border-radius:999px;padding:3px 10px;font-size:12px}
+.user-ctas{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:none;cursor:pointer;border-radius:16px;padding:14px 20px;
+  font-weight:800;font-size:15px;transition:transform .1s,box-shadow .1s;text-decoration:none}
+.btn:active{transform:translateY(2px)}
+.bp{background:var(--y);color:#111;box-shadow:0 4px 0 var(--y2)}
+.bp:active{box-shadow:0 2px 0 var(--y2)}
+.bs{background:rgba(255,255,255,.09);color:var(--text);border:1px solid var(--line2)}
+.bu{background:linear-gradient(135deg,#f5d847,#e8b820);color:#111;box-shadow:0 4px 0 #b08c0e}
+
+/* mascot */
+.mascot-row{display:flex;align-items:flex-start;gap:12px}
+.mascot{width:76px;height:76px;border-radius:22px;background:rgba(255,255,255,.06);
+  display:grid;place-items:center;font-size:40px;flex:0 0 auto}
+.speech{flex:1;background:linear-gradient(165deg,#fffaf0,#f5e8cb);color:var(--ink);
+  border-radius:20px 20px 20px 8px;padding:14px 16px;box-shadow:0 8px 20px rgba(0,0,0,.14)}
+.speech strong{font-family:'Fredoka',sans-serif;font-size:17px;letter-spacing:-.2px}
+.speech p{margin:6px 0 0;font-size:13.5px;line-height:1.48;color:#5c503e}
+
+/* progress mini grid */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.pc{padding:13px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.pc .n{font-family:'Fredoka',sans-serif;font-size:26px;line-height:1;letter-spacing:-.4px}
+.pc .l{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.3}
+
+/* ── trust bar ── */
+.trust-bar{display:flex;justify-content:center;flex-wrap:wrap;
+  margin-top:18px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ti{flex:1;min-width:110px;display:flex;align-items:center;justify-content:center;
+  gap:7px;padding:12px 10px;font-size:12.5px;font-weight:700;color:var(--muted);
+  border-right:1px solid var(--line)}
+.ti:last-child{border-right:none}
+.ti .ic{font-size:17px}
+
+/* ── sections ── */
+.section{padding-top:12px}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:10px 0 16px}
+.sh h2{margin:0;font-family:'Fredoka',sans-serif;font-size:28px;letter-spacing:-.5px}
+.sh .sub{color:var(--muted);font-weight:700;font-size:14px}
+
+/* ── problem / why section ── */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.why-card{padding:20px;border-radius:24px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.why-icon{font-size:36px;margin-bottom:12px}
+.why-card h3{margin:0 0 7px;font-family:'Fredoka',sans-serif;font-size:20px;letter-spacing:-.3px}
+.why-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55;font-weight:500}
+
+/* ── how it works ── */
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.how-card{padding:22px 18px;border-radius:24px;background:rgba(255,255,255,.06);border:1px solid var(--line);text-align:center}
+.how-step{width:36px;height:36px;border-radius:50%;background:var(--y);color:#111;
+  font-family:'Fredoka',sans-serif;font-size:20px;display:inline-flex;align-items:center;
+  justify-content:center;margin-bottom:12px;box-shadow:0 3px 0 var(--y2)}
+.how-card h3{margin:0 0 8px;font-family:'Fredoka',sans-serif;font-size:19px;letter-spacing:-.3px}
+.how-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55;font-weight:500}
+
+/* ── game grid ── */
+.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gc{padding:18px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid var(--line);position:relative;overflow:hidden}
+.gc.feat{background:linear-gradient(180deg,rgba(30,80,40,.92),rgba(18,54,24,.92));border-color:rgba(255,255,255,.14)}
+.gc.cs{opacity:.75}
+.gt{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.gico{width:66px;height:66px;border-radius:18px;background:rgba(255,255,255,.09);display:grid;place-items:center;font-size:34px;flex:0 0 auto}
+.gb{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+.gb-live{background:var(--green);color:#0c2c10}
+.gb-soon{background:rgba(200,178,100,.22);color:#e8d480}
+.gc h3{margin:10px 0 4px;font-family:'Fredoka',sans-serif;font-size:19px;letter-spacing:-.3px;line-height:1.05}
+.gmeta{font-size:12.5px;color:var(--muted);font-weight:700}
+.gskill{font-size:12px;color:rgba(125,224,122,.8);font-weight:700;margin-top:2px}
+.gc p{margin:6px 0 0;color:#cce0bc;font-size:13.5px;line-height:1.5;font-weight:500}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.tag{padding:5px 8px;border-radius:10px;background:rgba(255,255,255,.08);font-size:11px;font-weight:800;color:#c8e0b4}
+.gcta{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.sbtn{display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer;
+  border-radius:12px;padding:10px 13px;font-weight:900;font-size:13px;
+  background:var(--y);color:#111;box-shadow:0 3px 0 var(--y2)}
+.sbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--y2)}
+.game-note{margin-top:13px;text-align:center;font-size:13px;color:var(--muted);font-weight:700;
+  padding:9px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+
+/* ── pricing ── */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.price-card{padding:24px;border-radius:26px;background:rgba(255,255,255,.07);border:1px solid var(--line);position:relative}
+.price-card.hl{background:linear-gradient(180deg,rgba(243,210,71,.12),rgba(243,210,71,.05));border-color:rgba(243,210,71,.35)}
+.ptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:var(--y);color:#111;font-weight:900;font-size:12px;padding:4px 14px;border-radius:999px;white-space:nowrap}
+.pname{font-family:'Fredoka',sans-serif;font-size:21px;letter-spacing:-.3px;margin-bottom:3px}
+.pamt{font-family:'Fredoka',sans-serif;font-size:46px;line-height:1;letter-spacing:-1.2px;margin:9px 0 2px}
+.pper{font-size:13px;color:var(--muted);font-weight:700}
+.pfeats{list-style:none;padding:0;margin:16px 0 20px;display:grid;gap:9px}
+.pfeats li{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--text)}
+.pfeats li::before{content:'';flex:0 0 19px;height:19px;border-radius:50%;
+  background:rgba(125,224,122,.18);border:1.5px solid rgba(125,224,122,.38);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%237de07a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;background-size:11px}
+.pnote{font-size:12px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.4}
+.guar{margin-top:14px;padding:13px 16px;border-radius:16px;background:rgba(128,204,240,.07);
+  border:1px solid rgba(128,204,240,.18);text-align:center;font-size:13.5px;font-weight:700;color:var(--sky)}
+
+/* ── social proof ── */
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.proof-card{padding:18px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.stars{color:var(--y);font-size:16px;margin-bottom:8px;letter-spacing:1px}
+.proof-card p{margin:0 0 10px;font-size:14px;color:var(--muted);line-height:1.55;font-style:italic}
+.proof-name{font-size:13px;font-weight:700;color:var(--text)}
+
+/* ── bottom ── */
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sp{padding:22px}
+.collection{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}
+.stk{min-width:88px;padding:10px;border-radius:15px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);text-align:center;font-size:12.5px;font-weight:800;color:var(--muted)}
+.stk .si{display:block;font-size:22px;margin-bottom:4px}
+.stk.on{background:rgba(255,255,255,.12);color:var(--text);border-color:rgba(255,255,255,.22)}
+.faq{display:grid;gap:8px}
+.faq-item{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.faq-q{font-weight:800;font-size:15px}
+.faq-a{margin-top:5px;color:var(--muted);line-height:1.55;font-size:14px}
+
+/* ── CTA strip ── */
+.cta-strip{margin-top:14px;padding:28px 24px;border-radius:24px;
+  background:linear-gradient(135deg,rgba(243,210,71,.14),rgba(243,210,71,.06));
+  border:1.5px solid rgba(243,210,71,.32);text-align:center}
+.cta-strip h2{font-family:'Fredoka',sans-serif;font-size:28px;margin:0 0 8px;letter-spacing:-.4px}
+.cta-strip p{margin:0 0 18px;font-size:15px;color:var(--muted);line-height:1.5}
+
+/* ── modals ── */
+.modal{position:fixed;inset:0;background:rgba(2,10,5,.72);display:none;
+  align-items:center;justify-content:center;padding:16px;z-index:10000;backdrop-filter:blur(5px)}
+.modal.show{display:flex;animation:mIn .2s ease-out}
+@keyframes mIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.mc{width:min(520px,100%);background:linear-gradient(165deg,#fffaf0,#f5e8cb);color:var(--ink);
+  border-radius:26px;padding:24px 22px;box-shadow:0 18px 48px rgba(0,0,0,.30);position:relative}
+.mclose{position:absolute;top:13px;right:13px;width:30px;height:30px;border:none;
+  border-radius:50%;background:rgba(0,0,0,.10);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:#5a4938}
+.mc h3{margin:0;font-family:'Fredoka',sans-serif;font-size:28px;letter-spacing:-.5px}
+.msub{margin:9px 0 0;font-size:15px;line-height:1.5;color:#5c513e;font-weight:600}
+.mform{display:grid;gap:9px;margin-top:15px}
+.mi{padding:14px 15px;border-radius:14px;border:1.5px solid rgba(0,0,0,.10);
+  background:#fff;color:#222;outline:none;font-size:16px;transition:border-color .15s}
+.mi:focus{border-color:rgba(0,0,0,.28)}
+.macts{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
+.mnote{font-size:12px;color:#8a7a68;margin-top:9px;line-height:1.5}
+.mbtn-d{background:#1e4a28;color:#fff;border:none;border-radius:14px;padding:13px 17px;font-weight:800;font-size:15px;cursor:pointer}
+.msent{display:none;text-align:center;padding:6px 0}
+.msent .mbi{font-size:50px;margin-bottom:10px}
+.msent h4{margin:0;font-family:'Fredoka',sans-serif;font-size:24px;color:var(--ink)}
+.msent p{margin:9px 0 0;font-size:14.5px;color:#5c513e;line-height:1.55}
+.up-plans{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}
+.up-plan{padding:15px;border-radius:16px;border:2px solid rgba(0,0,0,.10);
+  background:#fffaf0;cursor:pointer;text-align:center;transition:border-color .15s}
+.up-plan.sel{border-color:#c09010;background:rgba(243,210,71,.10)}
+.up-plan .ua{font-family:'Fredoka',sans-serif;font-size:28px;color:var(--ink);letter-spacing:-.5px}
+.up-plan .up{font-size:12px;color:#7a6a55;font-weight:700;margin-top:2px}
+.up-plan .us{font-size:11.5px;color:#b06010;font-weight:900;margin-top:5px}
+.up-what{margin-top:13px;padding:13px;border-radius:12px;background:#fff;border:1px solid rgba(0,0,0,.08)}
+.up-wt{font-weight:800;font-size:13px;color:#5c513e;margin-bottom:9px}
+.uf{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:7px}
+.uf:last-child{margin-bottom:0}
+.uf::before{content:'';flex:0 0 19px;height:19px;border-radius:50%;background:#d4f7c4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%231a5c1a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;background-size:11px}
+
+/* ── toast ── */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
+  background:#1a3d1e;color:#e4f7e0;padding:12px 18px;border-radius:15px;
+  box-shadow:0 8px 28px rgba(0,0,0,.26);font-weight:700;font-size:14px;
+  display:none;z-index:10001;white-space:nowrap;border:1px solid rgba(125,224,122,.20)}
+.toast.show{display:block;animation:tIn .2s ease-out}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast.toast-error{background:#3d1c1c;color:#f7d5d5;border-color:rgba(220,80,50,.20)}
+
+.fs{height:28px}
+
+/* ── responsive ── */
+@media(max-width:1024px){.hero,.why-grid,.how-grid,.game-grid,.price-grid,.proof-grid,.bottom{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){
+  .hero,.why-grid,.how-grid,.game-grid,.price-grid,.proof-grid,.bottom,.pgrid,.ef,.up-plans{grid-template-columns:1fr}
+  .hero-card h1{font-size:34px}
+  .sh h2{font-size:25px}
+  .pamt{font-size:40px}
+  .nav{top:52px}
+  .fcta{display:flex}
+  .gc.feat{order:-1}
+  .ti{min-width:50%;font-size:12px}
 }
 </style>
-  
 </head>
 <body>
-  
-<header class="site-header">
-  <div class="container nav">
-    <a class="brand" href="/index.html"><span class="brand-mark">🎨</span><span>TapTots</span></a>
-    <nav class="nav-links" aria-label="Primary">
-      <a class="active" href="/index.html">Home</a>
-      <a  href="/play.html">Games</a>
-      <a href="/index.html#pricing">Pricing</a>
-      <a href="/index.html#faq">FAQ</a>
-      <a class="btn secondary" href="/abc-tappers/">Play ABC Tappers</a>
-    </nav>
+
+<!-- nav -->
+<div class="nav">
+  <button class="nav-btn" aria-label="Menu" onclick="TT.toggleMenu()">&#9776;</button>
+</div>
+<div class="nav-scrim" id="ttMenuScrim" onclick="TT.closeMenu()"></div>
+<div class="nav-panel" id="ttMenuPanel" role="dialog" aria-label="Navigation">
+  <div class="nav-title">TapTots</div>
+  <a class="nav-link" href="/index.html">&#127968; Home</a>
+  <a class="nav-link" href="/play.html">&#127918; All Games</a>
+  <a class="nav-link" href="#how">&#128161; How It Works</a>
+  <a class="nav-link" href="#pricing">&#128176; Pricing</a>
+  <div class="nav-div"></div>
+  <a class="nav-link" href="#" onclick="openTrial();TT.closeMenu();return false;">&#127873; Start Free Trial</a>
+  <div class="nav-user" id="ttNavUser"></div>
+  <a class="nav-link" id="ttSignOutLink" href="#" style="display:none" onclick="doSignOut();return false;">&#128682; Sign Out</a>
+</div>
+
+<!-- PWA banner -->
+<div class="pwa-banner" id="pwaBanner">
+  <div class="pwa-icon">&#127912;</div>
+  <div style="flex:1">
+    <div class="pwa-text"><strong>Add TapTots to your home screen</strong><span>Faster access, works offline&#8202;&mdash;&#8202;no app store needed</span></div>
+    <div class="pwa-acts">
+      <button class="pwa-btn pwa-yes" onclick="ttTriggerPwaInstall()">Add to Home Screen</button>
+      <button class="pwa-btn pwa-no" onclick="ttDismissPwa()">Not now</button>
+    </div>
   </div>
-</header>
-  
-<main>
-  <section class="hero">
-    <div class="container hero-grid">
-      <div class="hero-card hero-copy">
-        <span class="badge">FOR PARENTS OF KIDS AGES 2–7</span>
-        <h1>A safer alternative to random kids content.</h1>
-        <p>TapTots gives you a calm, ad-free place to hand over your phone. Big buttons, cheerful visuals, and simple games make it easy for small hands to jump in without getting lost.</p>
-        <div class="form-row" style="margin-top:18px">
-          <a class="btn" href="/play.html">See the games</a>
-          <a class="btn secondary" href="/abc-tappers/">Play ABC Tappers</a>
-        </div>
-        <div class="demo-banner">The broken auth layer has been removed from this repaired build so the pages load immediately and links work again.</div>
+</div>
+
+<button class="fcta" onclick="openTrial()">&#127873; Start Free Trial</button>
+
+<div class="wrap">
+<div class="content">
+
+  <!-- brand -->
+  <div class="brand-bar">
+    <a class="brand" href="/index.html" aria-label="TapTots home">
+      <div class="logo-mark">&#127912;</div>
+      <span class="brand-name"><span>Tap</span>Tots</span>
+    </a>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero" id="hero">
+    <div class="panel hero-l">
+      <span class="pill">FOR PARENTS OF KIDS AGES 2&ndash;7</span>
+      <div class="hero-card">
+        <h1>A safer alternative to <em>YouTube</em> for your kids.</h1>
+        <p>Ad-free learning games your child will actually love. Hand over your phone&nbsp;&mdash; no rabbit holes, no junk, no guilt.</p>
       </div>
-      <div class="hero-card hero-visual">
-        <div class="kid-panel">
-          <div class="badge">🦜 Pip says…</div>
-          <h3 style="margin:0">Pick a game, tap along, earn stars.</h3>
-          <p class="muted" style="margin:0">Everything is safe, simple, and designed for small hands.</p>
-          <div class="progress-row">
-            <div class="card stat"><strong data-stars>0</strong><span class="muted">Stars earned</span></div>
-            <div class="card stat"><strong>4</strong><span class="muted">Live games</span></div>
-            <div class="card stat"><strong data-stickers>0</strong><span class="muted">Stickers collected</span></div>
-            <div class="card stat"><strong data-games-played>0</strong><span class="muted">Games played</span></div>
+
+      <!-- not signed in -->
+      <div id="heroOut">
+        <div class="trial-form">
+          <div class="ef" id="heroEmail">
+            <input class="ei" id="inlineEmail" type="email" placeholder="Your email address" autocomplete="email" aria-label="Parent email">
+            <button class="btn bp" onclick="handleInlineTrial()" aria-label="Start free trial">Start Free Trial</button>
           </div>
+          <p class="enote">For parents only &mdash; no credit card needed. 7 days free, then $4.99/month.</p>
+        </div>
+        <div class="sub-acts">
+          <a class="btn bs" href="/play.html" style="font-size:14px;padding:11px 16px">See the Games</a>
+        </div>
+      </div>
+
+      <!-- signed in -->
+      <div id="heroIn" style="display:none">
+        <div class="user-row" id="userRow">
+          <span id="userIcon">&#9989;</span>
+          <span id="userText">Loading&hellip;</span>
+          <span class="ubadge" id="userBadge"></span>
+        </div>
+        <div class="user-ctas">
+          <a class="btn bp" href="/play.html">Open Games</a>
+          <button class="btn bu" id="heroUpBtn" style="display:none" onclick="openUpgrade()">Unlock All Access</button>
         </div>
       </div>
     </div>
-  </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="grid-4">
-        <div class="card feature"><div class="badge">🚫</div><h3>Zero ads</h3><p class="muted">No surprise videos, popups, or in-app traps.</p></div>
-        <div class="card feature"><div class="badge">🛡</div><h3>No junk links</h3><p class="muted">A contained experience made for handoff play.</p></div>
-        <div class="card feature"><div class="badge">🎓</div><h3>Actually educational</h3><p class="muted">The games focus on letters, shapes, memory, and creativity.</p></div>
-        <div class="card feature"><div class="badge">📱</div><h3>Mobile first</h3><p class="muted">Designed to feel natural on the phone in your hand.</p></div>
+    <div class="panel hero-r">
+      <div class="mascot-row">
+        <div class="mascot">&#129436;</div>
+        <div class="speech">
+          <strong>Pip says&hellip;</strong>
+          <p>Pick a game, tap along, earn stars. Everything is safe, simple, and designed for small hands.</p>
+        </div>
+      </div>
+      <div class="pgrid">
+        <div class="pc"><div class="n" id="statStars">0</div><div class="l">Stars earned</div></div>
+        <div class="pc"><div class="n">4</div><div class="l">Live games</div></div>
+        <div class="pc"><div class="n" id="statStickers">0</div><div class="l">Stickers collected</div></div>
+        <div class="pc"><div class="n" id="statGames">0</div><div class="l">Games played</div></div>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <h2>How TapTots works</h2>
-      <p class="lead">Start on the game hub, pick a skill, and let your child tap through at their own pace.</p>
-      <div class="grid-3">
-        <div class="card info-card"><div class="badge">1</div><h3>Open the game hub</h3><p class="muted">Use the Games page to browse what is live right now.</p></div>
-        <div class="card info-card"><div class="badge">2</div><h3>Pick a simple activity</h3><p class="muted">ABC Tappers is fully playable in this repaired build.</p></div>
-        <div class="card info-card"><div class="badge">3</div><h3>Progress stays on this device</h3><p class="muted">Stars and stickers are saved locally while you finish setup.</p></div>
+  <!-- ═══ TRUST BAR ═══ -->
+  <div class="trust-bar" role="list" aria-label="Why parents trust TapTots">
+    <div class="ti" role="listitem"><span class="ic">&#128683;</span>Zero ads</div>
+    <div class="ti" role="listitem"><span class="ic">&#128737;</span>No junk content</div>
+    <div class="ti" role="listitem"><span class="ic">&#127891;</span>Actually educational</div>
+    <div class="ti" role="listitem"><span class="ic">&#128241;</span>Safe to hand over</div>
+  </div>
+
+  <!-- ═══ WHY (problem) ═══ -->
+  <section class="section" id="why">
+    <div class="sh"><h2>Sound familiar?</h2><div class="sub">You are not alone</div></div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">&#128245;</div>
+        <h3>YouTube rabbit holes</h3>
+        <p>One video turns into an hour of unrelated, unvetted content. You never know what comes next.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">&#128226;</div>
+        <h3>Ads everywhere</h3>
+        <p>Kids&rsquo; apps and sites push ads, in-app purchases, and pop-ups that confuse and frustrate young children.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">&#128552;</div>
+        <h3>Screen time guilt</h3>
+        <p>You want your child learning, not just consuming. But it is hard to find something that actually teaches.</p>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <h2>The games</h2>
-      <p class="lead">ABC Tappers is ready now. The other cards are connected so navigation works, even if those games are still coming soon.</p>
-      <div class="grid-4">
-        <article class="card game-card">
-          <div class="topline"><span class="tag">🔤 Live</span><span class="muted">Ages 3–6</span></div>
-          <h3>ABC Tappers</h3>
-          <p class="muted">Tap the matching letter, earn stars, and reveal a friendly animal.</p>
-          <div class="pill-row"><span class="pill">letters</span><span class="pill">ABCs</span></div>
-          <a class="btn" href="/abc-tappers/">Play now</a>
-        </article>
-        <article class="card game-card">
-          <div class="topline"><span class="tag coming">🦁 Coming soon</span><span class="muted">Ages 3–7</span></div>
-          <h3>Memory Match Safari</h3>
-          <p class="muted">Match animal pairs across calm, bright safari scenes.</p>
-          <button class="btn secondary" data-demo-action="notify">Coming soon</button>
-        </article>
-        <article class="card game-card">
-          <div class="topline"><span class="tag coming">🔷 Coming soon</span><span class="muted">Ages 3–7</span></div>
-          <h3>Shape Safari</h3>
-          <p class="muted">Gentle shape recognition with hints for early learners.</p>
-          <button class="btn secondary" data-demo-action="notify">Coming soon</button>
-        </article>
-        <article class="card game-card">
-          <div class="topline"><span class="tag coming">🎨 Coming soon</span><span class="muted">Ages 2–7</span></div>
-          <h3>Color Splash</h3>
-          <p class="muted">Color play and creativity in a bright, satisfying space.</p>
-          <button class="btn secondary" data-demo-action="notify">Coming soon</button>
-        </article>
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="section" id="how">
+    <div class="sh"><h2>How TapTots works</h2><div class="sub">Ready in two minutes</div></div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-step">1</div>
+        <h3>Start your free trial</h3>
+        <p>Enter a parent email. No card needed. Your 7-day trial unlocks everything immediately.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-step">2</div>
+        <h3>Hand over the phone</h3>
+        <p>Pick a game from the hub. Big buttons, friendly characters, and clear instructions take over.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-step">3</div>
+        <h3>Progress saves automatically</h3>
+        <p>Stars, stickers, and levels carry across every session. Your child&rsquo;s progress is always waiting for them.</p>
       </div>
     </div>
   </section>
 
+  <!-- ═══ GAMES ═══ -->
+  <section class="section" id="games">
+    <div class="sh"><h2>The games</h2><div class="sub">4 live now &mdash; more every month</div></div>
+    <div class="game-grid">
+      <a class="gc feat" href="/abc-tappers.html" aria-label="Play ABC Tappers">
+        <div class="gt"><div class="gico">&#128292;</div><div class="gb gb-live">LIVE</div></div>
+        <h3>ABC Tappers</h3><div class="gmeta">Ages 3&ndash;6</div>
+        <div class="gskill">Builds: Letter recognition</div>
+        <p>Tap the right falling letter. Meet a new animal for every correct answer.</p>
+        <div class="tags"><span class="tag">letters</span><span class="tag">ABCs</span></div>
+        <div class="gcta"><span class="sbtn">Play Now</span></div>
+      </a>
+      <div class="gc feat" onclick="openGame('Memory Match Safari','memory-match-safari.html')">
+        <div class="gt"><div class="gico">&#129409;</div><div class="gb gb-live">LIVE</div></div>
+        <h3>Memory Match Safari</h3><div class="gmeta">Ages 3&ndash;7</div>
+        <div class="gskill">Builds: Working memory</div>
+        <p>Match pairs of safari animals across 5 zones. Stars and stickers await.</p>
+        <div class="tags"><span class="tag">memory</span><span class="tag">animals</span></div>
+        <div class="gcta"><span class="sbtn">Play Now</span></div>
+      </div>
+      <div class="gc" onclick="openGame('Shape Safari','shape-safari.html')">
+        <div class="gt"><div class="gico">&#128311;</div><div class="gb gb-live">LIVE</div></div>
+        <h3>Shape Safari</h3><div class="gmeta">Ages 3&ndash;7</div>
+        <div class="gskill">Builds: Shape recognition</div>
+        <p>Find the right shapes across guided rounds with helpful hints throughout.</p>
+        <div class="tags"><span class="tag">shapes</span><span class="tag">logic</span></div>
+        <div class="gcta"><span class="sbtn">Play Now</span></div>
+      </div>
+      <div class="gc" onclick="openGame('Color Splash','color-splash.html')">
+        <div class="gt"><div class="gico">&#127912;</div><div class="gb gb-live">LIVE</div></div>
+        <h3>Color Splash</h3><div class="gmeta">Ages 2&ndash;7</div>
+        <div class="gskill">Builds: Color mixing &amp; creativity</div>
+        <p>Mix colors and discover new ones in a bright, creative play space.</p>
+        <div class="tags"><span class="tag">colors</span><span class="tag">creative</span></div>
+        <div class="gcta"><span class="sbtn">Play Now</span></div>
+      </div>
+      <div class="gc cs"><div class="gt"><div class="gico">&#129418;</div><div class="gb gb-soon">COMING SOON</div></div><h3>Counting Critters</h3><div class="gmeta">Ages 2&ndash;5</div><div class="gskill">Builds: Number sense</div><p>Count cute animals and build early number skills through joyful play.</p><div class="tags"><span class="tag">counting</span><span class="tag">numbers</span></div><div class="gcta"><button class="sbtn" onclick="openTrial();event.stopPropagation()">Join Trial</button></div></div>
+      <div class="gc cs"><div class="gt"><div class="gico">&#128522;</div><div class="gb gb-soon">COMING SOON</div></div><h3>Emotion Faces</h3><div class="gmeta">Ages 2&ndash;5</div><div class="gskill">Builds: Emotional vocabulary</div><p>Identify feelings with gentle character play for younger children.</p><div class="tags"><span class="tag">feelings</span><span class="tag">social</span></div><div class="gcta"><button class="sbtn" onclick="openTrial();event.stopPropagation()">Join Trial</button></div></div>
+      <div class="gc cs"><div class="gt"><div class="gico">&#128248;</div><div class="gb gb-soon">COMING SOON</div></div><h3>Opposite Pals</h3><div class="gmeta">Ages 3&ndash;6</div><div class="gskill">Builds: Vocabulary</div><p>Learn big and small, fast and slow, hot and cold with playful characters.</p><div class="tags"><span class="tag">vocabulary</span><span class="tag">concepts</span></div><div class="gcta"><button class="sbtn" onclick="openTrial();event.stopPropagation()">Join Trial</button></div></div>
+      <div class="gc cs"><div class="gt"><div class="gico">&#128736;</div><div class="gb gb-soon">COMING SOON</div></div><h3>Shape Builder</h3><div class="gmeta">Ages 3&ndash;7</div><div class="gskill">Builds: Spatial reasoning</div><p>Drag and combine shapes to build pictures and solve simple puzzles.</p><div class="tags"><span class="tag">shapes</span><span class="tag">building</span></div><div class="gcta"><button class="sbtn" onclick="openTrial();event.stopPropagation()">Join Trial</button></div></div>
+    </div>
+    <div class="game-note">&#128197; New games added every month &mdash; All Access subscribers get them automatically</div>
+  </section>
+
+  <!-- ═══ PRICING ═══ -->
   <section class="section" id="pricing">
-    <div class="container">
-      <h2>Simple pricing</h2>
-      <p class="lead">Your original backend is not configured yet, so this repaired upload keeps the pricing section visible but does not attempt live checkout.</p>
-      <div class="pricing">
-        <div class="card pricing-card">
-          <h3>Free Trial</h3>
-          <p style="font-size:2rem; font-weight:900; margin:0">$0</p>
-          <p class="muted">7 days — no card needed once the backend is connected.</p>
-          <ul class="bullets">
-            <li><span>✅</span><span>Access to all live games</span></li>
-            <li><span>✅</span><span>Stars and stickers saved locally for now</span></li>
-            <li><span>✅</span><span>No ads, ever</span></li>
-          </ul>
-          <form data-trial-form style="margin-top:16px">
-            <div class="form-row">
-              <input class="input" type="email" placeholder="Parent email" aria-label="Parent email" />
-              <button class="btn" type="submit">Start free trial</button>
-            </div>
-            <p class="muted" data-form-message style="margin:.7rem 0 0"></p>
-          </form>
-        </div>
-        <div class="card pricing-card popular">
-          <h3>All Access</h3>
-          <p style="font-size:2rem; font-weight:900; margin:0">$4.99<span style="font-size:1rem">/month</span></p>
-          <p class="muted">Leave this card visible now, then wire Stripe back in later.</p>
-          <ul class="bullets">
-            <li><span>⭐</span><span>Every live game and every future release</span></li>
-            <li><span>⭐</span><span>Progress sync when backend is ready</span></li>
-            <li><span>⭐</span><span>Priority access to new releases</span></li>
-          </ul>
-          <button class="btn" data-demo-action="checkout" style="margin-top:16px">Unlock all access</button>
-        </div>
+    <div class="sh"><h2>Simple, honest pricing</h2><div class="sub">Cancel any time</div></div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="pname">Free Trial</div>
+        <div class="pamt">$0</div>
+        <div class="pper">for 7 days &mdash; no card needed</div>
+        <ul class="pfeats">
+          <li>All 4 live games, fully unlocked</li>
+          <li>Stars and stickers system</li>
+          <li>Progress saved automatically</li>
+          <li>No ads, ever</li>
+        </ul>
+        <button class="btn bp" style="width:100%" onclick="openTrial()">Start Free Trial</button>
+        <p class="pnote">No card required to start</p>
+      </div>
+      <div class="price-card hl">
+        <div class="ptag">&#127881; Most Popular</div>
+        <div class="pname">All Access</div>
+        <div class="pamt">$4.99</div>
+        <div class="pper">per month &mdash; cancel any time</div>
+        <ul class="pfeats">
+          <li>Every game, every level</li>
+          <li>New games added automatically</li>
+          <li>Progress synced across devices</li>
+          <li>Priority access to new releases</li>
+          <li>30-day money-back guarantee</li>
+        </ul>
+        <button class="btn bu" style="width:100%" onclick="openUpgrade()">Unlock All Games</button>
+        <p class="pnote">$4.99/month &mdash; cancel any time</p>
+      </div>
+    </div>
+    <div class="guar">&#128737; 30-day money-back guarantee. If your child doesn&rsquo;t love it, we&rsquo;ll refund you &mdash; no questions asked.</div>
+  </section>
+
+  <!-- ═══ SOCIAL PROOF ═══ -->
+  <section class="section">
+    <div class="sh"><h2>Parents love it</h2><div class="sub">Real feedback from real families</div></div>
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>&ldquo;My 4-year-old asks to play ABC Tappers every morning. She&rsquo;s learned the whole alphabet in three weeks.&rdquo;</p>
+        <div class="proof-name">Sarah M. &mdash; mum of two</div>
+      </div>
+      <div class="proof-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>&ldquo;Finally something I can hand my son without worrying what he&rsquo;ll stumble onto. No ads, no weird videos.&rdquo;</p>
+        <div class="proof-name">James K. &mdash; dad of three</div>
+      </div>
+      <div class="proof-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>&ldquo;Worth every penny. My daughter is learning while having fun and I don&rsquo;t feel guilty about screen time anymore.&rdquo;</p>
+        <div class="proof-name">Maya T. &mdash; parent</div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="faq">
-    <div class="container">
-      <h2>Questions</h2>
-      <div class="grid-3">
-        <div class="card faq-item"><h3>Does my child need an account?</h3><p class="muted">Not for this repaired static build. Progress is saved locally on the device.</p></div>
-        <div class="card faq-item"><h3>Why did the old pages break?</h3><p class="muted">The deployed site pointed to scripts in the wrong path and linked to a clean URL that did not have a matching folder route.</p></div>
-        <div class="card faq-item"><h3>What still needs setup later?</h3><p class="muted">Supabase auth, Stripe checkout, server functions, and any email automation.</p></div>
+  <!-- ═══ BOTTOM ═══ -->
+  <section class="bottom">
+    <div class="panel sp">
+      <h2 style="font-family:'Fredoka',sans-serif;font-size:24px;letter-spacing:-.4px;margin:0 0 5px">Shared rewards</h2>
+      <p style="margin:0;color:var(--muted);font-size:14px;line-height:1.55">Stars and stickers earned in any game stay with your child across every TapTots session.</p>
+      <div class="collection">
+        <div class="stk" id="stk1"><span class="si">&#127807;</span>Leaf</div>
+        <div class="stk" id="stk2"><span class="si">&#129409;</span>Lion</div>
+        <div class="stk" id="stk3"><span class="si">&#127752;</span>Rainbow</div>
+      </div>
+    </div>
+    <div class="panel sp">
+      <h2 style="font-family:'Fredoka',sans-serif;font-size:24px;letter-spacing:-.4px;margin:0 0 5px">Questions</h2>
+      <div class="faq">
+        <div class="faq-item"><div class="faq-q">Does my child need an account?</div><div class="faq-a">No. Only a parent email is needed. Your child just taps and plays immediately.</div></div>
+        <div class="faq-item"><div class="faq-q">What happens after the trial?</div><div class="faq-a">Access pauses after 7 days unless you subscribe for $4.99/month. Cancel any time.</div></div>
+        <div class="faq-item"><div class="faq-q">Is it safe for young children?</div><div class="faq-a">Yes. No ads, no links out, no chat, no tracking of children. Designed to be COPPA-safe.</div></div>
       </div>
     </div>
   </section>
-</main>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="card info-card">
-        <strong>TapTots repaired static build</strong>
-        <p class="small">This upload focuses on fixing the live site, restoring working navigation, and making ABC Tappers playable. Stripe, Supabase, and email automation can be wired back in later.</p>
+  <!-- ═══ CTA STRIP ═══ -->
+  <div class="cta-strip">
+    <h2>Ready to replace YouTube?</h2>
+    <p>7-day free trial. No card. No junk. Just learning games your child will love.</p>
+    <button class="btn bp" style="font-size:17px;padding:16px 28px" onclick="openTrial()">Start Free Trial &mdash; It&rsquo;s Free</button>
+  </div>
+
+  <div class="fs"></div>
+</div>
+</div>
+
+<!-- ═══ TRIAL MODAL ═══ -->
+<div class="modal" id="trialModal" role="dialog" aria-modal="true" aria-labelledby="trialTitle" onclick="if(event.target===this)closeTrial()">
+  <div class="mc">
+    <button class="mclose" onclick="closeTrial()" aria-label="Close">&#10005;</button>
+    <div id="trialFormWrap">
+      <h3 id="trialTitle">Start your free 7-day trial</h3>
+      <p class="msub">Unlock all games instantly. No credit card required.</p>
+      <div class="mform">
+        <input class="mi" id="modalEmail" type="email" placeholder="Parent email address" autocomplete="email" aria-label="Parent email">
+        <input class="mi" id="childAge"   type="text"  placeholder="Child's age (optional)" aria-label="Child's age">
       </div>
+      <div class="macts">
+        <button class="btn bp" id="trialBtn" onclick="submitTrial()" style="flex:1">Start Free Trial</button>
+        <button class="mbtn-d" onclick="closeTrial()">Not now</button>
+      </div>
+      <p class="mnote">We&rsquo;ll email a sign-in link &mdash; no password needed. For parents only.</p>
     </div>
-  </footer>
-  <script src="/js/auth.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/service-worker.js').catch(function(){}); }); }
-  </script>
+    <div class="msent" id="trialSent">
+      <div class="mbi">&#128231;</div>
+      <h4>Check your inbox!</h4>
+      <p>We sent a sign-in link to <strong id="sentEmail"></strong>. Tap it to activate your trial and open the games.</p>
+      <button class="btn bp" style="margin-top:18px;width:100%" onclick="closeTrial()">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ UPGRADE MODAL ═══ -->
+<div class="modal" id="upgradeModal" role="dialog" aria-modal="true" aria-labelledby="upTitle" onclick="if(event.target===this)closeUpgrade()">
+  <div class="mc">
+    <button class="mclose" onclick="closeUpgrade()" aria-label="Close">&#10005;</button>
+    <h3 id="upTitle">Unlock All Games</h3>
+    <p class="msub">Every game, every level. New games added every month.</p>
+    <div class="up-what">
+      <div class="up-wt">What your child gets:</div>
+      <div class="uf">All 4 live games, fully unlocked</div>
+      <div class="uf">New games added automatically</div>
+      <div class="uf">Stars and stickers tracked forever</div>
+      <div class="uf">Works on any device</div>
+    </div>
+    <div class="macts" style="margin-top:16px">
+      <button class="btn bu" id="upBtn" onclick="submitUpgrade()" style="flex:1">Unlock for $4.99/month</button>
+      <button class="mbtn-d" onclick="closeUpgrade()">Maybe later</button>
+    </div>
+    <p class="mnote">30-day money-back guarantee &mdash; cancel any time.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="./auth.js"></script>
+<script>
+/* ── init ── */
+ttAuthInit(function() { refreshUI(); ttRecordVisit && ttRecordVisit(); });
+window.ttOnAuthChange = function() { refreshUI(); };
+
+function refreshUI() {
+  var u = ttCurrentUser(), paid = ttIsPaid(), trial = ttTrialActive(),
+      exp = ttTrialExpired(), days = ttTrialDaysLeft(), err = ttEntError();
+  var out = document.getElementById('heroOut'), inn = document.getElementById('heroIn');
+  var row = document.getElementById('userRow'), txt = document.getElementById('userText');
+  var badge = document.getElementById('userBadge'), upBtn = document.getElementById('heroUpBtn');
+  if (u) {
+    out.style.display = 'none'; inn.style.display = 'block';
+    if (err) {
+      row.className = 'user-row ur-err'; txt.textContent = 'Could not load subscription.';
+      badge.textContent = 'Retry'; badge.style.cursor = 'pointer';
+      badge.onclick = function() { location.reload(); };
+      upBtn.style.display = 'none';
+    } else if (paid) {
+      row.className = 'user-row ur-paid'; txt.textContent = 'All Access active';
+      badge.textContent = u.email; upBtn.style.display = 'none';
+    } else if (trial) {
+      row.className = 'user-row ur-trial'; txt.textContent = 'Free trial active';
+      badge.textContent = days + ' day' + (days === 1 ? '' : 's') + ' left';
+      upBtn.style.display = 'inline-flex';
+    } else if (exp) {
+      row.className = 'user-row ur-exp'; txt.textContent = 'Trial ended';
+      badge.textContent = 'Upgrade to keep playing'; upBtn.style.display = 'inline-flex';
+    }
+    TT.updateNavUser();
+  } else { out.style.display = 'block'; inn.style.display = 'none'; }
+
+  var p = TT.progress();
+  document.getElementById('statStars').textContent    = p.totalStars || 0;
+  document.getElementById('statStickers').textContent = Object.keys(p.stickers || {}).length;
+  document.getElementById('statGames').textContent    = Object.keys(p.games || {}).length;
+  var earned = Object.keys(p.stickers || {}).length;
+  ['stk1','stk2','stk3'].forEach(function(id, i) {
+    document.getElementById(id).classList.toggle('on', i < earned);
+  });
+}
+
+function handleInlineTrial() { openTrial(document.getElementById('inlineEmail').value.trim()); }
+
+function openTrial(pre) {
+  document.getElementById('trialModal').classList.add('show');
+  document.getElementById('trialFormWrap').style.display = 'block';
+  document.getElementById('trialSent').style.display = 'none';
+  if (pre) document.getElementById('modalEmail').value = pre;
+  setTimeout(function() { var el = document.getElementById('modalEmail'); if (el) el.focus(); }, 180);
+}
+function closeTrial() { document.getElementById('trialModal').classList.remove('show'); }
+function submitTrial() {
+  var email = document.getElementById('modalEmail').value.trim();
+  var age   = document.getElementById('childAge').value.trim();
+  if (!email || !email.includes('@') || !email.includes('.')) { TT.toast('Please enter a valid email address.', 'error'); return; }
+  var btn = document.getElementById('trialBtn');
+  btn.textContent = 'Sending\u2026'; btn.disabled = true;
+  ttStartTrial(email, age,
+    function() {
+      document.getElementById('trialFormWrap').style.display = 'none';
+      document.getElementById('trialSent').style.display = 'block';
+      document.getElementById('sentEmail').textContent = email;
+      btn.textContent = 'Start Free Trial'; btn.disabled = false;
+    },
+    function(msg) {
+      TT.toast(msg || 'Something went wrong. Please try again.', 'error');
+      btn.textContent = 'Start Free Trial'; btn.disabled = false;
+    }
+  );
+}
+
+function openUpgrade() {
+  if (!ttCurrentUser()) { openTrial(); return; }
+  document.getElementById('upgradeModal').classList.add('show');
+  setTimeout(function() { var b = document.getElementById('upBtn'); if (b) b.focus(); }, 180);
+}
+function closeUpgrade() { document.getElementById('upgradeModal').classList.remove('show'); }
+function submitUpgrade() {
+  var btn = document.getElementById('upBtn');
+  btn.textContent = 'Opening checkout\u2026'; btn.disabled = true;
+  ttStartCheckout('monthly', function(err) {
+    TT.toast(err || 'Could not open checkout. Please try again.', 'error');
+    btn.textContent = 'Unlock for $4.99/month'; btn.disabled = false;
+  });
+}
+function openGame(title, href) {
+  if (!ttCurrentUser()) { openTrial(); return; }
+  if (!ttIsAllowed()) { openUpgrade(); return; }
+  ttRecordGameLaunch(href, title, '');
+  window.location.href = href;
+}
+function doSignOut() { TT.closeMenu(); ttSignOut(function() { TT.toast('Signed out.'); refreshUI(); }); }
+
+(function() {
+  if (location.search.indexOf('upgraded=1') > -1) {
+    TT.toast('Welcome to All Access! Every game is now unlocked.');
+    history.replaceState({}, '', location.pathname);
+  }
+})();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function(){});
+</script>
 </body>
 </html>
