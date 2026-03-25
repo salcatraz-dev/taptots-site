@@ -1,26 +1,10 @@
 {
-  "name": "TapTots – Safe Kids Learning Games",
+  "name": "TapTots",
   "short_name": "TapTots",
-  "description": "Safe, ad-free learning games for kids ages 2–7. A better alternative to YouTube.",
-  "start_url": "/play.html",
-  "display": "fullscreen",
-  "orientation": "portrait-primary",
-  "background_color": "#16361a",
-  "theme_color": "#16361a",
-  "lang": "en-US",
-  "categories": ["education", "kids", "games"],
-  "icons": [
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fbff",
+  "theme_color": "#4ea3ff",
+  "description": "Ad-free mobile-first learning games for young kids.",
+  "icons": []
 }
