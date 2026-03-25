@@ -1,0 +1,24 @@
+# TapTots — Cloudflare Pages Configuration
+# Deploy: wrangler pages deploy . --project-name=taptots
+#
+# Set these environment variables in:
+#   Cloudflare Dashboard > Workers & Pages > taptots > Settings > Environment Variables
+#
+# Required:
+#   SUPABASE_URL                  https://xxxx.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY     service_role key (not anon)
+#   STRIPE_SECRET_KEY             sk_live_xxx or sk_test_xxx
+#   STRIPE_WEBHOOK_SECRET         whsec_xxx  (from Stripe Dashboard > Webhooks)
+#   STRIPE_MONTHLY_PRICE_ID       price_xxx  ($4.99/month)
+#   SITE_URL                      https://playtaptots.com
+#
+# Optional:
+#   SENDGRID_API_KEY
+#   SENDGRID_FROM                 hello@playtaptots.com
+
+name = "taptots"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "."
+
+[vars]
+TRIAL_DAYS = "7"
